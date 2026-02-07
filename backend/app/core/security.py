@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException, status
-from app.core.supabase import supabase
+from app.core.supabase import supabase_public
 
 def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
@@ -12,12 +12,19 @@ def get_current_user(request: Request):
 
     token = auth_header.split(" ")[1]
 
-    user = supabase.auth.get_user(token)
-
-    if user.user is None:
+    try:
+        res = supabase_public.auth.get_user(token)
+        user = res.user
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token"
         )
 
-    return user.user
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+
+    return user
