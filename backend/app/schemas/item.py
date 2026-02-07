@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from app.schemas.item_image import ItemImageResponse
 from uuid import UUID
 
 class ItemCreate(BaseModel):
@@ -22,3 +23,6 @@ class ItemUpdate(BaseModel):
     rent_price_per_day: Optional[float] = None
     is_for_sale: Optional[bool] = None
     is_for_rent: Optional[bool] = None
+
+class ItemDetailResponse(ItemResponse):
+    images: List[ItemImageResponse] = []

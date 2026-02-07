@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, status
 from app.db import get_db
-from app.schemas import ItemCreate, ItemResponse, ItemUpdate
-from app.crud.item import create_item, update_item, delete_item
+from app.schemas import ItemCreate, ItemResponse, ItemUpdate, ItemDetailResponse
+from app.crud.item import create_item, update_item, delete_item, get_item_with_images
 from app.core.security import get_current_user
 from uuid import UUID
 
@@ -33,3 +34,15 @@ async def delete_item_api(
     current_user = Depends(get_current_user)
 ):
     await delete_item(db, item_id, current_user.id)
+
+@router.get("/{item_id}", response_model=ItemDetailResponse)
+async def get_item(
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    item = await get_item_with_images(db, item_id)
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return item

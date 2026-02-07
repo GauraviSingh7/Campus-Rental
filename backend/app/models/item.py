@@ -1,6 +1,7 @@
 import uuid
 from sqlalchemy import Column, String, Numeric, Boolean
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 class Item(Base):
@@ -13,3 +14,8 @@ class Item(Base):
     is_for_sale = Column(Boolean, default=False)
     is_for_rent = Column(Boolean, default=False)
     owner_id = Column(UUID(as_uuid=True), nullable=False)
+    images = relationship(
+        "ItemImage",
+        back_populates="item",
+        cascade="all, delete-orphan"
+    )

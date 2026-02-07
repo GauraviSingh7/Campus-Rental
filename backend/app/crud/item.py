@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from app.models import Item
 from app.schemas import ItemCreate, ItemUpdate
 from uuid import uuid4, UUID
@@ -77,3 +78,14 @@ async def delete_item(
 
     await db.delete(item)
     await db.commit()
+
+async def get_item_with_images(
+    db: AsyncSession,
+    item_id: UUID
+):
+    result = await db.execute(
+        select(Item)
+        .options(selectinload(Item.images))
+        .where(Item.id == item_id)
+    )
+    return result.scalar_one_or_none()
