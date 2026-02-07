@@ -15,3 +15,10 @@ class ItemResponse(ItemCreate):
 
     class Config:
         from_attributes = True
+
+class ItemUpdate(BaseModel):
+    title: Optional[str] = None
+    sell_price: Optional[float] = None
+    rent_price_per_day: Optional[float] = None
+    is_for_sale: Optional[bool] = None
+    is_for_rent: Optional[bool] = None
