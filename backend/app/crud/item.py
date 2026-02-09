@@ -3,7 +3,8 @@ from sqlalchemy.orm import selectinload
 from app.models import Item
 from app.schemas import ItemCreate, ItemUpdate
 from uuid import uuid4, UUID
-from sqlalchemy import select
+from sqlalchemy import select, func
+from typing import Optional
 from fastapi import HTTPException, status
 
 async def create_item(
@@ -71,3 +72,84 @@ async def get_item_with_images(
         .where(Item.id == item_id)
     )
     return result.scalar_one_or_none()
+
+
+async def get_items_paginated(
+    db: AsyncSession,
+    limit: int = 10,
+    offset: int = 0,
+    for_sale: Optional[bool] = None,
+    for_rent: Optional[bool] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    min_rent: Optional[float] = None,
+    max_rent: Optional[float] = None,
+    search: Optional[str] = None,
+    owner_id: Optional[str] = None
+):
+    """Get paginated items with optional filters"""
+    
+    # Build base query
+    query = select(Item).options(selectinload(Item.images))
+    
+    # Apply filters
+    if for_sale is not None:
+        query = query.where(Item.is_for_sale == for_sale)
+    
+    if for_rent is not None:
+        query = query.where(Item.is_for_rent == for_rent)
+    
+    if min_price is not None:
+        query = query.where(Item.sell_price >= min_price)
+    
+    if max_price is not None:
+        query = query.where(Item.sell_price <= max_price)
+    
+    if min_rent is not None:
+        query = query.where(Item.rent_price_per_day >= min_rent)
+    
+    if max_rent is not None:
+        query = query.where(Item.rent_price_per_day <= max_rent)
+    
+    if search:
+        query = query.where(Item.title.ilike(f"%{search}%"))
+    
+    if owner_id:
+        query = query.where(Item.owner_id == owner_id)
+    
+    # Get total count
+    count_query = select(func.count()).select_from(Item)
+    
+    if for_sale is not None:
+        count_query = count_query.where(Item.is_for_sale == for_sale)
+    if for_rent is not None:
+        count_query = count_query.where(Item.is_for_rent == for_rent)
+    if min_price is not None:
+        count_query = count_query.where(Item.sell_price >= min_price)
+    if max_price is not None:
+        count_query = count_query.where(Item.sell_price <= max_price)
+    if min_rent is not None:
+        count_query = count_query.where(Item.rent_price_per_day >= min_rent)
+    if max_rent is not None:
+        count_query = count_query.where(Item.rent_price_per_day <= max_rent)
+    if search:
+        count_query = count_query.where(Item.title.ilike(f"%{search}%"))
+    if owner_id:
+        count_query = count_query.where(Item.owner_id == owner_id)
+    
+    total_result = await db.execute(count_query)
+    total = total_result.scalar()
+    
+    # Apply pagination
+    query = query.order_by(Item.id.desc()).offset(offset).limit(limit)
+    
+    result = await db.execute(query)
+    items = result.scalars().all()
+    
+    return {
+        "items": items,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total
+    }

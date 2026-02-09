@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
 from app.db import get_db
-from app.schemas import ItemCreate, ItemResponse, ItemUpdate, ItemDetailResponse
-from app.crud.item import create_item, update_item, get_item_with_images, get_item_for_delete
+from app.schemas import ItemCreate, ItemResponse, ItemUpdate, ItemDetailResponse, PaginatedItemsResponse
+from app.crud.item import create_item, update_item, get_item_with_images, get_item_for_delete, get_items_paginated
 from app.models import ItemImage
 from app.core.security import get_current_user
 from app.core.supabase import supabase_admin
 from sqlalchemy import select
+from typing import Optional
 from uuid import UUID
 
 router = APIRouter(prefix="/items", tags=["Items"])
@@ -28,6 +28,35 @@ async def update_item_api(
     current_user = Depends(get_current_user)
 ):
     return await update_item(db, item_id, item, current_user.id)
+
+@router.get("/", response_model=PaginatedItemsResponse)
+async def list_items(
+    db: AsyncSession = Depends(get_db),
+    limit: int = Query(10, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    is_for_sale: Optional[bool] = None,
+    is_for_rent: Optional[bool] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    min_rent: Optional[float] = None,
+    max_rent: Optional[float] = None,
+    search: Optional[str] = None,
+    owner_id: Optional[str] = None
+):
+    return await get_items_paginated(
+        db=db,
+        limit=limit,
+        offset=offset,
+        for_sale=is_for_sale,
+        for_rent=is_for_rent,
+        min_price=min_price,
+        max_price=max_price,
+        min_rent=min_rent,
+        max_rent=max_rent,
+        search=search,
+        owner_id=owner_id
+    )
+
 
 @router.get("/{item_id}", response_model=ItemDetailResponse)
 async def get_item(

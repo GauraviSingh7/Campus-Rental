@@ -26,3 +26,10 @@ class ItemUpdate(BaseModel):
 
 class ItemDetailResponse(ItemResponse):
     images: List[ItemImageResponse] = []
+
+class PaginatedItemsResponse(BaseModel):
+    items: List[ItemDetailResponse]
+    total: int
+    limit: int
+    offset: int
+    has_more: bool
