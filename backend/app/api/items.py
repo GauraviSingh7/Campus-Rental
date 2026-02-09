@@ -3,8 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 from app.db import get_db
 from app.schemas import ItemCreate, ItemResponse, ItemUpdate, ItemDetailResponse
-from app.crud.item import create_item, update_item, delete_item, get_item_with_images
+from app.crud.item import create_item, update_item, get_item_with_images, get_item_for_delete
+from app.models import ItemImage
 from app.core.security import get_current_user
+from app.core.supabase import supabase_admin
+from sqlalchemy import select
 from uuid import UUID
 
 router = APIRouter(prefix="/items", tags=["Items"])
@@ -26,15 +29,6 @@ async def update_item_api(
 ):
     return await update_item(db, item_id, item, current_user.id)
 
-
-@router.delete("/{item_id}", status_code=204)
-async def delete_item_api(
-    item_id: UUID,
-    db: AsyncSession = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    await delete_item(db, item_id, current_user.id)
-
 @router.get("/{item_id}", response_model=ItemDetailResponse)
 async def get_item(
     item_id: UUID,
@@ -46,3 +40,38 @@ async def get_item(
         raise HTTPException(status_code=404, detail="Item not found")
 
     return item
+
+@router.delete("/{item_id}", status_code=204)
+async def delete_item(
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    item = await get_item_for_delete(db, item_id)
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if str(item.owner_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    images_res = await db.execute(
+        select(ItemImage).where(ItemImage.item_id == item_id)
+    )
+    images = images_res.scalars().all()
+
+    if images:
+        paths = [
+            img.image_url.split("/item-images/")[1]
+            for img in images
+        ]
+
+        supabase_admin.storage.from_("item-images").remove(paths)
+
+    for img in images:
+        await db.delete(img)
+
+    await db.delete(item)
+    await db.commit()
+
+    return

@@ -55,29 +55,11 @@ async def update_item(
     await db.refresh(item)
     return item
 
-
-async def delete_item(
-    db: AsyncSession,
-    item_id: UUID,
-    user_id: str
-):
+async def get_item_for_delete(db, item_id: UUID):
     result = await db.execute(
         select(Item).where(Item.id == item_id)
     )
-    item = result.scalar_one_or_none()
-
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    # 🔐 AUTHORIZATION CHECK
-    if str(item.owner_id) != str(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not allowed to delete this item"
-        )
-
-    await db.delete(item)
-    await db.commit()
+    return result.scalar_one_or_none()
 
 async def get_item_with_images(
     db: AsyncSession,
