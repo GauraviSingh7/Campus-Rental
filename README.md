@@ -138,16 +138,6 @@ uvicorn main:app --reload
 
 ---
 
-## ☁️ Deployment
-
-| Service | Platform | URL |
-|---------|----------|-----|
-| Frontend | Vercel | [campus-rental-weld.vercel.app](https://campus-rental-weld.vercel.app) |
-| Backend | Render / Railway | *(your backend URL)* |
-| Database | Supabase | *(your Supabase project)* |
-
----
-
 ## 📄 License
 
 This project is for educational purposes. Feel free to fork and adapt it for your own campus community.
