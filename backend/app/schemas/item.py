@@ -24,8 +24,16 @@ class ItemUpdate(BaseModel):
     is_for_sale: Optional[bool] = None
     is_for_rent: Optional[bool] = None
 
+class OwnerInfo(BaseModel):
+    full_name: str
+    phone: str
+
+    class Config:
+        from_attributes = True
+
 class ItemDetailResponse(ItemResponse):
     images: List[ItemImageResponse] = []
+    owner: Optional[OwnerInfo] = None
 
 class PaginatedItemsResponse(BaseModel):
     items: List[ItemDetailResponse]

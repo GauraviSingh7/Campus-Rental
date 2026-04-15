@@ -68,7 +68,10 @@ async def get_item_with_images(
 ):
     result = await db.execute(
         select(Item)
-        .options(selectinload(Item.images))
+        .options(
+            selectinload(Item.images),
+            selectinload(Item.owner)
+        )
         .where(Item.id == item_id)
     )
     return result.scalar_one_or_none()
@@ -90,7 +93,7 @@ async def get_items_paginated(
     """Get paginated items with optional filters"""
     
     # Build base query
-    query = select(Item).options(selectinload(Item.images))
+    query = select(Item).options(selectinload(Item.images), selectinload(Item.owner))
     
     # Apply filters
     if for_sale is not None:
