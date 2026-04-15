@@ -13,7 +13,7 @@
 - **User Profiles** with personal contact details and active listings
 
 ### 📦 Item Listings
-- **Dual Pricing** — list items for sale, daily rent, or both
+- **Dual Pricing** — list items for sale or daily rent
 - **Media Support** — upload up to 5 images per item
 - **Tagging** — categorization and condition status (New, Used, etc.)
 
