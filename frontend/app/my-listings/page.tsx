@@ -10,6 +10,8 @@ export default function MyListingsPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editItem, setEditItem] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ title: '', description: '', sell_price: '', rent_price_per_day: '', type: 'FOR SALE' });
 
   useEffect(() => {
     const fetchMyListings = async () => {
@@ -40,6 +42,25 @@ export default function MyListingsPage() {
       headers: { Authorization: `Bearer ${token}` },
     });
     setItems(items.filter(item => item.id !== id));
+  };
+
+  const handleEdit = async () => {
+    const token = localStorage.getItem('access_token');
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/${editItem.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        title: editForm.title,
+        description: editForm.description,
+        is_for_sale: editForm.type === 'FOR SALE',
+        is_for_rent: editForm.type === 'FOR RENT',
+        sell_price: editForm.type === 'FOR SALE' ? parseFloat(editForm.sell_price) : null,
+        rent_price_per_day: editForm.type === 'FOR RENT' ? parseFloat(editForm.rent_price_per_day) : null,
+      }),
+    });
+    const updated = await res.json();
+    setItems(items.map(i => i.id === updated.id ? { ...i, ...updated } : i));
+    setEditItem(null);
   };
 
   return (
@@ -104,7 +125,7 @@ export default function MyListingsPage() {
                 <h3 className="text-[#5D4037] font-bold text-xl mb-1">{item.title}</h3>
                 <p className="text-[#5D4037] text-3xl font-black mb-6">₹{price}</p>
                 <div className="flex gap-3 w-full">
-                  <button onClick={() => router.push(`/sell?edit=${item.id}`)}
+                  <button onClick={() => { setEditItem(item); setEditForm({ title: item.title, description: item.description || '', sell_price: item.sell_price || '', rent_price_per_day: item.rent_price_per_day || '', type: item.is_for_sale ? 'FOR SALE' : 'FOR RENT' }); }}
                     className="flex-1 flex items-center justify-center gap-2 bg-[#8B5E3C] text-white py-2.5 rounded-2xl font-bold hover:bg-[#5D4037] transition-all">
                     <Pencil size={16} /> Edit
                   </button>
@@ -118,6 +139,42 @@ export default function MyListingsPage() {
           })}
         </div>
       </main>
+
+      {editItem && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditItem(null)}>
+          <div className="bg-[#FFF8EE] rounded-[40px] p-8 shadow-2xl w-full max-w-md space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="text-[#5D4037] text-2xl font-black">Edit Listing</h2>
+            <div className="space-y-1.5">
+              <label className="text-[#5D4037] font-bold text-sm">Listing Type</label>
+              <select className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-4 outline-none font-semibold text-[#5D4037]"
+                value={editForm.type} onChange={e => setEditForm({...editForm, type: e.target.value})}>
+                <option value="FOR SALE">FOR SALE</option>
+                <option value="FOR RENT">FOR RENT</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[#5D4037] font-bold text-sm">Item Name</label>
+              <input className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-4 outline-none font-medium text-[#5D4037]"
+                value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[#5D4037] font-bold text-sm">Price (₹)</label>
+              <input type="number" className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-4 outline-none font-bold text-[#5D4037]"
+                value={editForm.type === 'FOR SALE' ? editForm.sell_price : editForm.rent_price_per_day}
+                onChange={e => setEditForm({...editForm, [editForm.type === 'FOR SALE' ? 'sell_price' : 'rent_price_per_day']: e.target.value})} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[#5D4037] font-bold text-sm">Description</label>
+              <textarea rows={2} className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-4 outline-none font-medium text-[#5D4037] resize-none"
+                value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setEditItem(null)} className="flex-1 py-3 rounded-2xl border-2 border-[#D4A373]/30 text-[#5D4037] font-bold hover:bg-[#D4A373]/10 transition-all">Cancel</button>
+              <button onClick={handleEdit} className="flex-1 py-3 rounded-2xl bg-[#8B5E3C] text-white font-black hover:bg-[#5D4037] transition-all">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
