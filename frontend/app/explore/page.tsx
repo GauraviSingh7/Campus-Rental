@@ -120,8 +120,20 @@ export default function ExplorePage() {
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     {selectedItem.owner?.phone && (
-                      <a href={`tel:${selectedItem.owner.phone}`} className="flex items-center gap-3 p-3 bg-white border border-[#D4A373]/30 rounded-2xl text-[#8B5E3C] font-bold hover:bg-[#8B5E3C] hover:text-white transition-all">
-                        <Phone size={18} /> {selectedItem.owner.phone}
+                      <a
+                        href={`https://wa.me/${selectedItem.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                          `Hi ${selectedItem.owner.full_name}, I'm interested in your item "${selectedItem.title}". Is it still available?`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-left gap-2 p-3 text-[#5D4037] text-lg rounded-2xl font-bold hover:bg-green-600 transition-all"
+                      >
+                        <img 
+                          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+                          alt="WhatsApp"
+                          className="w-5 h-5"
+                        />
+                        Chat on WhatsApp
                       </a>
                     )}
                     {selectedItem.owner?.email && (
