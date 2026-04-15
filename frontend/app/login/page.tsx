@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from 'react';
-import { User, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
@@ -29,11 +28,9 @@ const validate = (data: Partial<FormData>, isLogin: boolean): string | null => {
 };
 
 export default function LoginPage() {
-  const [role, setRole] = useState<'student' | 'admin'>('student');
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [form, setForm] = useState<FormData>({
     full_name: '',
     email: '',
@@ -49,7 +46,6 @@ export default function LoginPage() {
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     const validationError = validate(form, isLogin);
     if (validationError) { setError(validationError); return; }
@@ -76,7 +72,6 @@ export default function LoginPage() {
           },
         });
         if (error) throw error;
-        setSuccess("Account created! Please check your email to confirm your account before logging in.");
         setForm({ full_name: '', email: '', phone: '', password: '', confirmPassword: '' });
         setIsLogin(true);
       }
@@ -105,26 +100,9 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        {/* Student / Admin toggle */}
-        <div className="flex bg-gray-200/60 p-1.5 rounded-2xl mb-6">
-          <button type="button" onClick={() => setRole('student')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${role === 'student' ? 'bg-white text-[#2da2c8] shadow-md' : 'text-gray-600'}`}>
-            <User size={18} /> Student
-          </button>
-          <button type="button" onClick={() => setRole('admin')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${role === 'admin' ? 'bg-white text-[#ef4444] shadow-md' : 'text-gray-600'}`}>
-            <ShieldCheck size={18} /> Admin
-          </button>
-        </div>
-
         {error && (
           <div className="mb-4 px-5 py-3 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-semibold text-center">
             {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-4 px-5 py-3 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold text-center">
-            {success}
           </div>
         )}
 
@@ -154,22 +132,14 @@ export default function LoginPage() {
               className={inputClass} />
           )}
 
-          {isLogin && (
-            <div className="text-right pr-2">
-              <button type="button" className="text-xs text-gray-500 font-semibold hover:text-[#2da2c8]">
-                Forgot Password?
-              </button>
-            </div>
-          )}
-
           <button type="submit" disabled={loading}
-            className={`w-full py-4 mt-2 rounded-full font-bold text-white text-2xl shadow-xl transition-all active:scale-95 disabled:opacity-60 ${role === 'admin' ? 'bg-[#ef4444]' : 'bg-[#2da2c8]'}`}>
+            className="w-full py-4 mt-2 rounded-full font-bold text-white text-2xl shadow-xl transition-all active:scale-95 disabled:opacity-60 bg-[#2da2c8]">
             {loading ? 'Please wait...' : isLogin ? 'Login' : 'Sign Up'}
           </button>
         </form>
 
         <div className="mt-8 text-center">
-          <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); setSuccess(''); }}
+          <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); }}
             className="text-gray-900 font-bold text-sm hover:text-[#2da2c8] transition-colors border-b-2 border-[#2da2c8]">
             {isLogin ? "New to Agora? Create Account" : "Already have an account? Log In"}
           </button>

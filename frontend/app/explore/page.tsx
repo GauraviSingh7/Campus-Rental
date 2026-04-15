@@ -115,8 +115,8 @@ export default function ExplorePage() {
                 <div className="space-y-4">
                   <p className="text-[#5D4037] font-black text-xs uppercase tracking-wider">Owner Contact</p>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold">{selectedItem.owner?.name?.charAt(0) || "?"}</div>
-                    <p className="text-[#5D4037] font-bold text-lg">{selectedItem.owner?.name || "Unknown"}</p>
+                    <div className="w-10 h-10 bg-[#8B5E3C] rounded-full flex items-center justify-center text-white font-bold">{selectedItem.owner?.full_name?.charAt(0) || "?"}</div>
+                    <p className="text-[#5D4037] font-bold text-lg">{selectedItem.owner?.full_name || "Unknown"}</p>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     {selectedItem.owner?.phone && (
