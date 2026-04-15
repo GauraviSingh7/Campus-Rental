@@ -1,38 +1,43 @@
 # 🏫 Campus Rental & Resale Platform
 
-A full-stack web application designed for students to **rent or sell items within a college campus**. This platform facilitates peer-to-peer transactions, allowing users to list items with flexible pricing and negotiate directly with peers.
+> A peer-to-peer marketplace built for students — rent, sell, or buy items within your college campus without middlemen or in-app fees.
 
-Built with **Next.js, FastAPI, and PostgreSQL (Supabase)** using a scalable, modern architecture.
+🌐 **Live App:** [campus-rental-weld.vercel.app](https://campus-rental-weld.vercel.app)
 
 ---
 
 ## 🚀 Features
 
 ### 👤 User Management
-- **Secure Authentication:** Integrated with Supabase Auth.
-- **Campus-Restricted:** Optional access restriction to college email domains.
-- **User Profiles:** Manage personal contact details and active listings.
+- **Secure Authentication** via Supabase Auth
+- **User Profiles** with personal contact details and active listings
 
 ### 📦 Item Listings
-- **Dual Pricing:** List items for sale, daily rent, or both.
-- **Media Support:** Upload multiple images per item.
-- **Tagging:** Categorization and condition status (New, Used, etc.).
+- **Dual Pricing** — list items for sale, daily rent, or both
+- **Media Support** — upload up to 5 images per item
+- **Tagging** — categorization and condition status (New, Used, etc.)
 
 ### 🔍 Discovery & Communication
-- **Advanced Filtering:** Filter by category, price range, and listing type.
-- **Direct Contact:** Seller contact details visible for direct negotiation (no in-app fees).
+- **Browse Listings** — explore all available items on campus
+- **WhatsApp Integration** — interested buyers/renters can instantly open a WhatsApp chat with the seller via a direct redirect link
+- **Direct Contact** — no in-app fees or middlemen; negotiate directly with peers
+
+### 🛠️ Item Management
+- **Create, Edit & Delete** your own listings at any time
+- **Ownership Enforcement** — only the item owner can modify or remove their listing
 
 ---
 
 ## 🧱 Tech Stack
 
 | Layer | Technology |
-| :--- | :--- |
-| **Frontend** | Next.js (App Router), Tailwind CSS, React Hook Form |
-| **Backend** | FastAPI, SQLAlchemy (Async), Pydantic |
-| **Database** | PostgreSQL (Supabase) |
-| **Storage** | Supabase Storage (for item images) |
-| **Deployment** | Vercel (Frontend), Render/Railway (Backend) |
+|-------|-----------|
+| Frontend | Next.js (App Router), Tailwind CSS, React Hook Form |
+| Backend | FastAPI, SQLAlchemy (Async), Pydantic |
+| Database | PostgreSQL (Supabase) |
+| Storage | Supabase Storage (item images) |
+| Messaging | WhatsApp API (chat redirect) |
+| Deployment | Vercel (Frontend), Render/Railway (Backend) |
 
 ---
 
@@ -42,7 +47,7 @@ Built with **Next.js, FastAPI, and PostgreSQL (Supabase)** using a scalable, mod
 Frontend (Next.js + Tailwind)
         ↓ REST API
 Backend (FastAPI)
-        ↓ ORM
+        ↓ ORM (SQLAlchemy Async)
 PostgreSQL (Supabase)
         ↓
 Supabase Storage (Images)
@@ -52,22 +57,24 @@ Supabase Storage (Images)
 
 ## 🗂️ Database Schema
 
-### **Users**
+### Users
+
 | Field | Type | Description |
-| :--- | :--- | :--- |
+|-------|------|-------------|
 | `id` | UUID (PK) | Unique user identifier |
 | `name` | VARCHAR | Full name |
 | `email` | VARCHAR | Unique college email |
 | `phone` | VARCHAR | Contact number |
 | `created_at` | TIMESTAMP | Account creation date |
 
-### **Items**
+### Items
+
 | Field | Type | Description |
-| :--- | :--- | :--- |
+|-------|------|-------------|
 | `id` | UUID (PK) | Unique item identifier |
 | `title` | VARCHAR | Name of the item |
 | `sell_price` | NUMERIC | Sale price (optional) |
-| `rent_price_per_day` | NUMERIC | Rental price (optional) |
+| `rent_price_per_day` | NUMERIC | Rental price per day (optional) |
 | `owner_id` | UUID (FK) | References `Users.id` |
 | `category_id` | INT (FK) | References `Categories.id` |
 
@@ -75,29 +82,72 @@ Supabase Storage (Images)
 
 ## 🧪 Validation Rules
 
-- **Price Requirement:** An item must have at least one price (sell or rent).
-- **Rental Logic:** Rental price must be greater than 0.
-- **Ownership:** Only item owners can edit or delete their listings.
-- **Media Limit:** Maximum of 5 images per item.
+- **Price Requirement** — an item must have at least one price (sale or rental)
+- **Rental Logic** — rental price must be greater than 0
+- **Ownership** — only item owners can edit or delete their listings
+- **Media Limit** — maximum of 5 images per item
 
 ---
 
-## 📡 API Endpoints (Quick Reference)
+## 📡 API Endpoints
 
-### **Items**
-- `GET /items` – Browse all listings
-- `POST /items` – Create a new listing
-- `PUT /items/{id}` – Update a listing
-- `DELETE /items/{id}` – Remove a listing
+### Items
 
-### **Auth**
-- `POST /auth/signup` – Register new user
-- `POST /auth/login` – Authenticate user
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/items` | Browse all listings |
+| `POST` | `/items` | Create a new listing |
+| `PUT` | `/items/{id}` | Update a listing |
+| `DELETE` | `/items/{id}` | Remove a listing |
+
+### Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/signup` | Register a new user |
+| `POST` | `/auth/login` | Authenticate a user |
 
 ---
 
-## 📈 Roadmap
+## 🖥️ Local Development
 
-- [x] **Phase 1:** MVP (Auth, Listings, Image Uploads)
-- [ ] **Phase 2:** Wishlist, view counts, and item availability status
-- [ ] **Phase 3:** In-app chat and admin moderation dashboard
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+- A Supabase project (for database and storage)
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local   # Add your Supabase keys
+npm run dev
+```
+
+### Backend Setup
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env          # Add your Supabase connection string
+uvicorn main:app --reload
+```
+
+---
+
+## ☁️ Deployment
+
+| Service | Platform | URL |
+|---------|----------|-----|
+| Frontend | Vercel | [campus-rental-weld.vercel.app](https://campus-rental-weld.vercel.app) |
+| Backend | Render / Railway | *(your backend URL)* |
+| Database | Supabase | *(your Supabase project)* |
+
+---
+
+## 📄 License
+
+This project is for educational purposes. Feel free to fork and adapt it for your own campus community.
