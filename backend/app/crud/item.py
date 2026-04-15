@@ -19,7 +19,8 @@ async def create_item(
         rent_price_per_day=item.rent_price_per_day,
         is_for_sale=item.is_for_sale,
         is_for_rent=item.is_for_rent,
-        owner_id=owner_id
+        owner_id=owner_id,
+        description=item.description
     )
 
     db.add(new_item)

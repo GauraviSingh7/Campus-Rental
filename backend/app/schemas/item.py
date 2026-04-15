@@ -9,6 +9,7 @@ class ItemCreate(BaseModel):
     rent_price_per_day: Optional[float] = None
     is_for_sale: bool = False
     is_for_rent: bool = False
+    description: Optional[str] = None
 
 class ItemResponse(ItemCreate):
     id: UUID
@@ -23,6 +24,7 @@ class ItemUpdate(BaseModel):
     rent_price_per_day: Optional[float] = None
     is_for_sale: Optional[bool] = None
     is_for_rent: Optional[bool] = None
+    description: Optional[str] = None
 
 class OwnerInfo(BaseModel):
     full_name: str

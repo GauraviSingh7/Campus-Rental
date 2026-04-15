@@ -9,6 +9,7 @@ class Item(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
     sell_price = Column(Numeric, nullable=True)
     rent_price_per_day = Column(Numeric, nullable=True)
     is_for_sale = Column(Boolean, default=False)

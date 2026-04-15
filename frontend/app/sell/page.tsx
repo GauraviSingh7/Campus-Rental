@@ -14,6 +14,7 @@ export default function SellPage() {
     sell_price: '',
     rent_price_per_day: '',
     type: 'FOR SALE',
+    description: '',
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,6 +38,7 @@ export default function SellPage() {
         is_for_rent: formData.type === 'FOR RENT',
         sell_price: formData.type === 'FOR SALE' ? parseFloat(formData.sell_price) : null,
         rent_price_per_day: formData.type === 'FOR RENT' ? parseFloat(formData.rent_price_per_day) : null,
+        description: formData.description,
       };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/`, {
@@ -101,7 +103,7 @@ export default function SellPage() {
         </div>
       </nav>
 
-      <main className="flex-1 flex items-center justify-center p-6">
+      <main className="flex-1 flex items-center justify-center py-0.5 px-6">
         <div className="bg-[#FFF8EE]/95 backdrop-blur-md rounded-[40px] p-8 shadow-2xl border border-white/50 w-full max-w-xl">
           <div className="mb-6">
             <h2 className="text-[#5D4037] text-3xl font-bold mb-1">List Your Item</h2>
@@ -145,6 +147,18 @@ export default function SellPage() {
               <input type="text" placeholder="e.g. Scientific Calculator" required value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-6 outline-none font-medium text-[#5D4037]" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[#5D4037] font-bold text-sm ml-1">Description</label>
+              <textarea
+                placeholder="Describe your item..."
+                required
+                rows={2}
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="w-full bg-white border-2 border-[#D4A373]/20 rounded-2xl py-2.5 px-6 outline-none font-medium text-[#5D4037] resize-none"
+              />
             </div>
 
             <button type="submit" disabled={loading}
